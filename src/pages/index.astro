@@ -2,27 +2,42 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout>
-  <main
-    class="splash-page min-h-screen w-full bg-cover bg-center bg-no-repeat"
-    aria-label="Alhojat"
-  >
-    <div class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-10">
-      <h1 class="sr-only">Alhojat</h1>
-
-      <!-- دکمه‌های انتخاب زبان را بعداً اینجا اضافه می‌کنیم -->
+<Layout title="الحجة - پایگاه تخصصی">
+  <main class="relative w-full h-screen overflow-hidden flex flex-col justify-between items-center select-none">
+    
+    {/* تصویر پس‌زمینه نسخه دسکتاپ (عرض بالا) */}
+    <div 
+      class="hidden md:block absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat -z-10"
+      style="background-image: url('/alhojat/images/splash-pc.jpg');">
     </div>
+
+    {/* تصویر پس‌زمینه نسخه موبایل */}
+    <div 
+      class="block md:hidden absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat -z-10"
+      style="background-image: url('/alhojat/images/splash-mobile.jpg');">
+    </div>
+
+    {/* لایه بسیار محو روی تصویر در صورت نیاز */}
+    <div class="absolute inset-0 bg-black/10 -z-10"></div>
+
+    {/* بخش هدر / خالی برای زیبایی بصری طرح */}
+    <header class="w-full p-6"></header>
+
+    {/* دکمه ورود و لینک‌ها */}
+    <section class="text-center z-10 px-4">
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a 
+          href="/alhojat/fa" 
+          class="px-8 py-3 rounded-xl bg-amber-800/85 hover:bg-amber-900 text-amber-50 font-medium shadow-xl backdrop-blur-sm transition duration-300 transform hover:-translate-y-0.5 border border-amber-600/30">
+          ورود به پایگاه تخصصی
+        </a>
+      </div>
+    </section>
+
+    {/* فوتر */}
+    <footer class="w-full py-4 text-center text-xs text-stone-300/80 z-10">
+      <p>© کلیه حقوق محفوظ است - الحجة</p>
+    </footer>
+
   </main>
 </Layout>
-
-<style>
-  .splash-page {
-    background-image: url('/images/splash-pc.jpg');
-  }
-
-  @media (max-width: 767px) {
-    .splash-page {
-      background-image: url('/images/splash-mobile.jpg');
-    }
-  }
-</style>
