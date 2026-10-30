@@ -3,8 +3,26 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
-  <main class="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6">
-    <h1 class="text-4xl font-bold mb-4 text-emerald-400"><p>www.alhojat.ir</p> وبگاه حُجَّتِ بنِ الْحَسَن امام عصر (عج)</h1>
-    <p class="text-lg text-slate-300">به زودی...</p>
+  <main
+    class="splash-page min-h-screen w-full bg-cover bg-center bg-no-repeat"
+    aria-label="Alhojat"
+  >
+    <div class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-10">
+      <h1 class="sr-only">Alhojat</h1>
+
+      <!-- دکمه‌های انتخاب زبان را بعداً اینجا اضافه می‌کنیم -->
+    </div>
   </main>
 </Layout>
+
+<style>
+  .splash-page {
+    background-image: url('/images/splash-pc.jpg');
+  }
+
+  @media (max-width: 767px) {
+    .splash-page {
+      background-image: url('/images/splash-mobile.jpg');
+    }
+  }
+</style>
