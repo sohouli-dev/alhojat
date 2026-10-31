@@ -2,38 +2,168 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="الحجة - پایگاه تخصصی">
-  <main class="relative w-full h-screen overflow-hidden flex flex-col justify-between items-center select-none">
+<Layout title="پژوهشگاه تخصصی الحجة | سامانه هوشمند معارف مهدوی">
+  
+  {/* تعریف فونت‌های سفارشی */}
+  <style>
+    @font-face {
+      font-family: 'A Thuluth';
+      src: url('/fonts/A THULUTH.TTF') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'Arad Medium';
+      src: url('/fonts/ARAD-MEDIUM.TTF') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'IranNastaliqWeb';
+      src: url('/fonts/IranNastaliqWeb.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    .font-thuluth {
+      font-family: 'A Thuluth', serif;
+    }
+
+    .font-arad {
+      font-family: 'Arad Medium', sans-serif;
+    }
+
+    .font-nastaliq {
+      font-family: 'IranNastaliqWeb', serif;
+    }
+
+    /* استروک عنوان اصلی */
+    .title-stroke {
+      text-shadow: 
+        -1px -1px 0 #000000,  
+        -1px  3px 0 #000000,
+         1px  1px 0 #000000,
+         0px 3px 10px rgba(245, 158, 11, 0.6);
+    }
+
+    /* استروک زیرعنوان */
+    .subtitle-stroke {
+      text-shadow: 
+        -1px -1px 0 #000,  
+         1px -1px 0 #000,
+        -1px  2px 0 #000,
+         1px  1px 0 #000;
+    }
+
+    /* استروک و سایه سراج برای خوانایی روی کادر گل‌دار */
+    .siraj-stroke {
+      text-shadow: 
+        -1px -1px 0 #2a1405,  
+         1px -1px 0 #2a1405,
+        -1px  1px 0 #2a1405,
+         1px  1px 0 #2a1405,
+         0px 2px 8px rgba(0, 0, 0, 0.7);
+    }
     
-    {/* تصویر پس‌زمینه نسخه دسکتاپ (عرض بالا) */}
+  </style>
+
+  <main class="relative w-full h-screen overflow-hidden flex flex-col justify-between items-center select-none font-sans">
+    
+    {/* تصویر پس‌زمینه نسخه دسکتاپ */}
     <div 
       class="hidden md:block absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat -z-10"
-      style="background-image: url('/alhojat/images/splash-pc.jpg');">
+      style="background-image: url('/public/images/splash-pc.jpg');">
     </div>
 
     {/* تصویر پس‌زمینه نسخه موبایل */}
     <div 
       class="block md:hidden absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat -z-10"
-      style="background-image: url('/alhojat/images/splash-mobile.jpg');">
+      style="background-image: url('/public/images/splash-mobile.jpg');">
     </div>
 
-    {/* لایه بسیار محو روی تصویر در صورت نیاز */}
-    <div class="absolute inset-0 bg-black/10 -z-10"></div>
+    {/* لایه تیره‌کننده ملایم */}
+    <div class="absolute inset-0 bg-black/05 -z-5 pointer-events-none"></div>
 
-    {/* بخش هدر / خالی برای زیبایی بصری طرح */}
-    <header class="w-full p-6"></header>
-
-    {/* دکمه ورود و لینک‌ها */}
-    <section class="text-center z-10 px-4">
-      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-       
+    {/* کادر سراج داخل قاب گل و بلبل (مخصوص دسکتاپ) */}
+    <div class="hidden lg:flex absolute top-[22%] right-[8%] xl:right-[9%] w-[290px] xl:w-[340px] h-[130px] flex-col items-center justify-center text-center z-10 pointer-events-auto">
+      <h2 class="text-6xl xl:text-7xl font-nastaliq text-amber-500 siraj-stroke leading-none pb-2">
+        سِراج
+      </h2>
+        {/* باکس معرفی سامانه سراج (زیر کادر دکوراتیو) */}
+    <div class="mt-8 lg:mt-64 w-full flex justify-center px-4 md:px-0">
+      <div class="max-w-2xl p-6 md:p-8 rounded-2xl bg-amber-50/50 backdrop-blur-sm border border-amber-900/10 shadow-lg text-center">
+        <p class="text-stone-900 font-arad text-sm md:text-base leading-relaxed md:leading-loose text-justify md:text-center">
+          <span class="font-bold text-amber-950">سِراج</span>، سامانهٔ هوشمند پاسخ‌گویی به سؤالات و شبهات و دستیار تخصصی پژوهش برای علاقه‌مندان و محققان حوزهٔ معارف مهدوی است. این سامانه با بهره‌گیری از نسخه‌های پیشرفتهٔ مدل‌های زبانی هوش مصنوعیِ سفارشی‌سازی‌شده و به‌کارگیری معماری مدرن استناد و بازیابی اسناد، طوری طراحی شده است تا پاسخ‌ها را مستقیماً از دل آیات، احادیث کتب اربعه، تراث شیعی، آثار علمای امامیه و آخرین مقالات علمی داوری‌شده —به‌دور از تحریف و بدون دخل و تصرف یا خطای هوش مصنوعی— استخراج کند و بر پایهٔ منابع اصیل، متقن و مستندات دست‌اول شیعی، چراغ راهی مطمئن برای حق‌پژوهان و علاقه‌مندان به معارف مهدوی باشد.
+        </p>
       </div>
-    </section>
+    </div>
+      <p class="text-[11px] xl:text-xs font-arad font-semibold text-white subtitle-stroke px-8">
+        سامانه هوشمند پاسخگویی به معارف مهدوی
+      </p>
+    </div>
 
-    {/* فوتر */}
-    <footer class="w-full py-4 text-center text-xs text-stone-300/80 z-10">
-      <p>© کلیه حقوق محفوظ است - الحجة</p>
-    </footer>
+    {/* بخش بالایی: عنوان و شعار رسمی */}
+    <header class="z-10 text-center pt-3 px-4">
+      <div class="inline-block bg-black/65 border border-amber-500/30 px-8 py-5 rounded-2xl backdrop-blur-md shadow-2xl">
+        <h1 class="text-3xl md:text-5xl font-thuluth text-amber-200 tracking-wide title-stroke">
+          پژوهشگاه تخصصی الحجة (عج)
+        </h1>
+        <p class="text-sm md:text-base font-arad text-gray-100 mt-4 subtitle-stroke">
+          نخستین سامانه هوشمند تبیین معارف مهدوی و پاسخگویی بر پایه منابع اصیل شیعی
+        </p>
+      </div>
+          {/* باکس معرفی سامانه سراج (زیر کادر دکوراتیو) */}
+    <div class="mt-8 lg:mt-64 w-full flex justify-center px-4 md:px-0">
+      <div class="max-w-2xl p-6 md:p-8 rounded-2xl bg-amber-50/50 backdrop-blur-sm border border-amber-900/10 shadow-lg text-center">
+        <p class="text-stone-900 font-arad text-sm md:text-base leading-relaxed md:leading-loose text-justify md:text-center">
+          <span class="font-bold text-amber-950">سِراج</span>، سامانهٔ هوشمند پاسخ‌گویی به سؤالات و شبهات و دستیار تخصصی پژوهش برای علاقه‌مندان و محققان حوزهٔ معارف مهدوی است. این سامانه با بهره‌گیری از نسخه‌های پیشرفتهٔ مدل‌های زبانی هوش مصنوعیِ سفارشی‌سازی‌شده و به‌کارگیری معماری مدرن استناد و بازیابی اسناد، طوری طراحی شده است تا پاسخ‌ها را مستقیماً از دل آیات، احادیث کتب اربعه، تراث شیعی، آثار علمای امامیه و آخرین مقالات علمی داوری‌شده —به‌دور از تحریف و بدون دخل و تصرف یا خطای هوش مصنوعی— استخراج کند و بر پایهٔ منابع اصیل، متقن و مستندات دست‌اول شیعی، چراغ راهی مطمئن برای حق‌پژوهان و علاقه‌مندان به معارف مهدوی باشد.
+        </p>
+      </div>
+    </div>
+
+    </header>
+
+    {/* بخش پایینی: انتخاب زبان با ۹ پرچم */}
+    <div class="z-10 pb-8 px-4 w-full max-w-5xl mx-auto flex flex-col items-center">
+      <div class="text-center mb-3">
+        <span class="text-xs md:text-sm font-arad text-amber-300 bg-black/75 px-5 py-1.5 rounded-full border border-amber-500/40 backdrop-blur-md shadow-lg">
+          لطفاً زبان مورد نظر خود را انتخاب کنید / Please select your language
+        </span>
+      </div>
+
+      {/* گرید زبان‌ها */}
+      <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2 md:gap-3 w-full justify-items-center">
+        {[
+          { code: 'fa', name: 'فارسی', flag: '🇮🇷', path: '/fa/' },
+          { code: 'ar', name: 'العربية', flag: '🇮🇶', path: '/ar/' },
+          { code: 'en', name: 'English', flag: '🇺🇸', path: '/en/' },
+          { code: 'az', name: 'Azərbaycan', flag: '🇦🇿', path: '/az/' },
+          { code: 'ur', name: 'اردو', flag: '🇵🇰', path: '/ur/' },
+          { code: 'fr', name: 'Français', flag: '🇫🇷', path: '/fr/' },
+          { code: 'es', name: 'Español', flag: '🇪🇸', path: '/es/' },
+          { code: 'ku', name: 'کوردی', flag: '☀️', path: '/ku/' },
+          { code: 'he', name: 'עברית', flag: '🇮🇱', path: '/he/' },
+        ].map((lang) => (
+          <a
+            href={lang.path}
+            class="group flex flex-col items-center justify-center p-2.5 rounded-xl bg-black/70 hover:bg-amber-500/30 border border-white/15 hover:border-amber-400 transition-all duration-300 backdrop-blur-md w-full shadow-xl hover:scale-105"
+          >
+            <span class="text-2xl md:text-3xl mb-1 group-hover:scale-110 transition-transform">{lang.flag}</span>
+            <span class="text-xs md:text-sm font-arad font-semibold text-gray-100 group-hover:text-amber-300">{lang.name}</span>
+          </a>
+        ))}
+      </div>
+
+      {/* کپی‌رایت پایین صفحه */}
+      <div class="mt-4 text-center text-[10px] font-arad text-gray-300/80 bg-black/60 px-4 py-1 rounded-full backdrop-blur-sm">
+        کلیه حقوق محفوظ است - الحجة © 2026
+      </div>
+    </div>
 
   </main>
 </Layout>
