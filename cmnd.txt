@@ -6,4 +6,5 @@ git commit -m "توضیح کوتاهی از کاری که امروز انجام 
 git push
 راست‌کلیک توی پوشه alhojat و زدن Open Git Bash here
 توی ترمینال VS Code دکمه‌های Ctrl + C رو بزنید تا سرور موقتاً متوقف بشه
-
+cd alhojat
+بعد دستورات
