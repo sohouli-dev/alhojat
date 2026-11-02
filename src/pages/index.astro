@@ -1,169 +1,809 @@
 ---
-import Layout from '../layouts/Layout.astro';
+// src/pages/splash.astro — صفحه انتخاب زبان (standalone، بدون Layout)
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const href = (l: string) => `${base}/${l}/`;
 ---
+<!doctype html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>www.alhojat.com | انتخاب زبان</title>
+  <link rel="icon" href={`${base}/favicon.ico`} />
+  <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+  <style is:global>
+    * { box-sizing: border-box; }
 
-<Layout title="پژوهشگاه تخصصی الحجة | سامانه هوشمند معارف مهدوی">
-  
-  {/* تعریف فونت‌های سفارشی */}
-  <style>
-    @font-face {
-      font-family: 'A Thuluth';
-      src: url('/fonts/A THULUTH.TTF') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
+    :root {
+      color-scheme: dark;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
     }
 
-    @font-face {
-      font-family: 'Arad Medium';
-      src: url('/fonts/ARAD-MEDIUM.TTF') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
     }
 
-    @font-face {
-      font-family: 'IranNastaliqWeb';
-      src: url('/fonts/IranNastaliqWeb.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
+    button, a { font: inherit; }
+
+    button:focus-visible, a:focus-visible {
+      outline: 2px solid #fbbf24;
+      outline-offset: 3px;
     }
 
-    .font-thuluth {
-      font-family: 'A Thuluth', serif;
+    #globeViz {
+      position: fixed;
+      inset: 0;
     }
 
-    .font-arad {
-      font-family: 'Arad Medium', sans-serif;
+    .header {
+      position: fixed;
+      top: 16px;
+      left: 12px;
+      right: 12px;
+      z-index: 5;
+      text-align: center;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, .85);
+      pointer-events: none;
     }
 
-    .font-nastaliq {
-      font-family: 'IranNastaliqWeb', serif;
+    .header h1 {
+      margin: 0 0 6px;
+      color: #ffb347;
+      font-size: clamp(19px, 3vw, 26px);
+      letter-spacing: 1px;
+      direction: ltr;
     }
 
-    /* استروک عنوان اصلی */
-    .title-stroke {
-      text-shadow: 
-        -1px -1px 0 #000000,  
-        -1px  3px 0 #000000,
-         1px  1px 0 #000000,
-         0px 3px 10px rgba(245, 158, 11, 0.6);
+    .header p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
     }
 
-    /* استروک زیرعنوان */
-    .subtitle-stroke {
-      text-shadow: 
-        -1px -1px 0 #000,  
-         1px -1px 0 #000,
-        -1px  2px 0 #000,
-         1px  1px 0 #000;
+    .glass {
+      background: rgba(15, 17, 23, .83);
+      border: 1px solid rgba(255, 255, 255, .16);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
-    /* استروک و سایه سراج برای خوانایی روی کادر گل‌دار */
-    .siraj-stroke {
-      text-shadow: 
-        -1px -1px 0 #2a1405,  
-         1px -1px 0 #2a1405,
-        -1px  1px 0 #2a1405,
-         1px  1px 0 #2a1405,
-         0px 2px 8px rgba(0, 0, 0, 0.7);
+    .language-sidebar {
+      position: fixed;
+      top: 50%;
+      left: 18px;
+      z-index: 10;
+      width: 214px;
+      max-height: 82vh;
+      padding: 10px;
+      overflow-y: auto;
+      border-radius: 14px;
+      transform: translateY(-50%);
     }
-    
+
+    .sidebar-title {
+      padding: 5px 6px 9px;
+      margin-bottom: 5px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      color: #cbd5e1;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .mobile-menu-toggle { display: none; }
+
+    .lang-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 39px;
+      padding: 7px 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .025);
+      color: #f1f5f9;
+      text-decoration: none;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background .2s, border-color .2s, transform .2s;
+    }
+
+    .lang-item:hover,
+    .lang-item:focus-visible {
+      background: rgba(255, 255, 255, .13);
+      border-color: rgba(255, 255, 255, .22);
+      transform: translateX(3px);
+    }
+
+    .lang-item.is-active {
+      background: rgba(255, 255, 255, .14);
+      border-color: rgba(255, 255, 255, .35);
+    }
+
+    .lang-item.is-suggested .color-dot {
+      animation: suggested-pulse 1.7s infinite;
+    }
+
+    .color-dot {
+      width: 11px;
+      height: 11px;
+      flex: 0 0 11px;
+      border-radius: 50%;
+      background: var(--dot);
+      box-shadow: 0 0 9px var(--dot);
+    }
+
+    @keyframes suggested-pulse {
+      50% { box-shadow: 0 0 0 6px rgba(255, 255, 255, .12), 0 0 14px var(--dot); }
+    }
+
+    .reset-view {
+      position: fixed;
+      top: 94px;
+      right: 18px;
+      z-index: 10;
+      padding: 9px 12px;
+      border-radius: 9px;
+      color: white;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .reset-view:hover { background: rgba(40, 45, 55, .95); }
+
+    .suggestion {
+      position: fixed;
+      top: 94px;
+      left: 50%;
+      z-index: 11;
+      width: min(390px, calc(100vw - 120px));
+      padding: 11px 13px;
+      border-radius: 11px;
+      transform: translateX(-50%);
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.9;
+    }
+
+    .suggestion-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 9px;
+      margin-top: 5px;
+    }
+
+    .suggestion-actions a { color: #fbbf24; }
+
+    .suggestion-actions button {
+      border: 0;
+      background: none;
+      color: #cbd5e1;
+      cursor: pointer;
+    }
+
+    .loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      z-index: 8;
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+      padding: 16px 22px;
+      border-radius: 12px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      font-size: 13px;
+    }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid rgba(255, 255, 255, .25);
+      border-top-color: #fbbf24;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast, .error {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 12;
+      max-width: min(380px, calc(100vw - 40px));
+      padding: 10px 14px;
+      border-radius: 9px;
+      background: rgba(15, 17, 23, .94);
+      border: 1px solid rgba(255, 255, 255, .2);
+      direction: rtl;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .error { background: #762727; }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 700px) {
+      .header { top: 12px; }
+
+      .header p {
+        max-width: 290px;
+        margin: auto;
+        font-size: 11px;
+      }
+
+      .reset-view {
+        top: 85px;
+        right: 12px;
+      }
+
+      .suggestion {
+        top: 129px;
+        width: calc(100vw - 32px);
+      }
+
+      .language-sidebar {
+        top: auto;
+        bottom: 12px;
+        left: 12px;
+        width: min(390px, calc(100vw - 24px));
+        max-height: min(65dvh, 480px);
+        overflow: hidden;
+        transform: none;
+      }
+
+      .sidebar-title { display: none; }
+
+      .mobile-menu-toggle {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        border: 0;
+        background: transparent;
+        color: white;
+        text-align: right;
+        cursor: pointer;
+        font-size: 13px;
+      }
+
+      .language-sidebar:not(.open) .lang-list { display: none; }
+
+      .lang-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-height: calc(65dvh - 62px);
+        overflow-y: auto;
+        gap: 6px;
+        padding-top: 8px;
+      }
+
+      .lang-item {
+        min-width: 0;
+        min-height: 43px;
+        padding: 7px;
+        overflow: hidden;
+        font-size: 11px;
+        text-overflow: ellipsis;
+      }
+
+      .lang-item span:last-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .toast, .error {
+        right: 12px;
+        bottom: 76px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
   </style>
+  <script is:inline src={`${base}/globe.min.js`}></script>
+</head>
+<body>
+  <header class="header">
+    <h1>www.alhojat.com</h1>
+    <p>لطفاً زبان مورد نظر را روی کره یا از منو انتخاب کنید / Select your language</p>
+  </header>
 
-  <main class="relative w-full h-screen overflow-hidden flex flex-col justify-between items-center select-none font-sans">
-    
-    {/* تصویر پس‌زمینه نسخه دسکتاپ */}
-    <div 
-      class="hidden md:block absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat -z-10"
-      style="background-image: url('/public/images/splash-pc.jpg');">
+  <aside class="language-sidebar glass" id="languageSidebar" aria-label="انتخاب زبان">
+    <div class="sidebar-title">Languages / زبان‌ها</div>
+
+    <button class="mobile-menu-toggle" id="menuToggle"
+            type="button" aria-expanded="false" aria-controls="languageList">
+      ☰ انتخاب زبان‌ها
+    </button>
+
+    <nav class="lang-list" id="languageList" aria-label="زبان‌های سایت">
+      <a class="lang-item" data-lang="fa" href={href('fa')} style="--dot:#FFFF00">
+        <span class="color-dot"></span><span>فارسی</span>
+      </a>
+      <a class="lang-item" data-lang="ar" href={href('ar')} style="--dot:#177C00">
+        <span class="color-dot"></span><span dir="rtl">العربية</span>
+      </a>
+      <a class="lang-item" data-lang="en" href={href('en')} style="--dot:#b0601a">
+        <span class="color-dot"></span><span>English</span>
+      </a>
+      <a class="lang-item" data-lang="fr" href={href('fr')} style="--dot:#9d7ad2">
+        <span class="color-dot"></span><span>Français</span>
+      </a>
+      <a class="lang-item" data-lang="es" href={href('es')} style="--dot:#FF5789">
+        <span class="color-dot"></span><span>Español</span>
+      </a>
+      <a class="lang-item" data-lang="az" href={href('az')} style="--dot:#e57373">
+        <span class="color-dot"></span><span>Türkçe / Azərbaycanca</span>
+      </a>
+      <a class="lang-item" data-lang="ru" href={href('ru')} style="--dot:#34B3F1">
+        <span class="color-dot"></span><span>Русский</span>
+      </a>
+      <a class="lang-item" data-lang="ur" href={href('ur')} style="--dot:#EF5B0C">
+        <span class="color-dot"></span><span dir="rtl">اردو</span>
+      </a>
+      <a class="lang-item" data-lang="he" href={href('he')} style="--dot:#DBDBDB">
+        <span class="color-dot"></span><span dir="rtl">עברית</span>
+      </a>
+    </nav>
+  </aside>
+
+  <button class="reset-view glass" id="resetView" type="button"
+          title="بازگشت به نمای اولیه و شروع چرخش خودکار">
+    ↺ نمای اولیه
+  </button>
+
+  <div class="suggestion glass" id="suggestion" hidden>
+    <span id="suggestionText"></span>
+    <div class="suggestion-actions">
+      <a id="suggestionLink" href="#">ورود به نسخهٔ پیشنهادی</a>
+      <button id="dismissSuggestion" type="button" aria-label="بستن پیشنهاد">✕</button>
     </div>
+  </div>
 
-    {/* تصویر پس‌زمینه نسخه موبایل */}
-    <div 
-      class="block md:hidden absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat -z-10"
-      style="background-image: url('/public/images/splash-mobile.jpg');">
-    </div>
+  <div id="globeViz" aria-label="کرهٔ زمین تعاملی"></div>
 
-    {/* لایه تیره‌کننده ملایم */}
-    <div class="absolute inset-0 bg-black/05 -z-5 pointer-events-none"></div>
+  <div class="loading glass" id="loading" role="status" aria-live="polite">
+    <span class="spinner" aria-hidden="true"></span>
+    <span>در حال بارگذاری نقشه...</span>
+  </div>
 
-    {/* کادر سراج داخل قاب گل و بلبل (مخصوص دسکتاپ) */}
-    <div class="hidden lg:flex absolute top-[22%] right-[8%] xl:right-[9%] w-[290px] xl:w-[340px] h-[130px] flex-col items-center justify-center text-center z-10 pointer-events-auto">
-      <h2 class="text-6xl xl:text-7xl font-nastaliq text-amber-500 siraj-stroke leading-none pb-2">
-        سِراج
-      </h2>
-        {/* باکس معرفی سامانه سراج (زیر کادر دکوراتیو) */}
-    <div class="mt-8 lg:mt-64 w-full flex justify-center px-4 md:px-0">
-      <div class="max-w-2xl p-6 md:p-8 rounded-2xl bg-amber-50/50 backdrop-blur-sm border border-amber-900/10 shadow-lg text-center">
-        <p class="text-stone-900 font-arad text-sm md:text-base leading-relaxed md:leading-loose text-justify md:text-center">
-          <span class="font-bold text-amber-950">سِراج</span>، سامانهٔ هوشمند پاسخ‌گویی به سؤالات و شبهات و دستیار تخصصی پژوهش برای علاقه‌مندان و محققان حوزهٔ معارف مهدوی است. این سامانه با بهره‌گیری از نسخه‌های پیشرفتهٔ مدل‌های زبانی هوش مصنوعیِ سفارشی‌سازی‌شده و به‌کارگیری معماری مدرن استناد و بازیابی اسناد، طوری طراحی شده است تا پاسخ‌ها را مستقیماً از دل آیات، احادیث کتب اربعه، تراث شیعی، آثار علمای امامیه و آخرین مقالات علمی داوری‌شده —به‌دور از تحریف و بدون دخل و تصرف یا خطای هوش مصنوعی— استخراج کند و بر پایهٔ منابع اصیل، متقن و مستندات دست‌اول شیعی، چراغ راهی مطمئن برای حق‌پژوهان و علاقه‌مندان به معارف مهدوی باشد.
-        </p>
-      </div>
-    </div>
-      <p class="text-[11px] xl:text-xs font-arad font-semibold text-white subtitle-stroke px-8">
-        سامانه هوشمند پاسخگویی به معارف مهدوی
-      </p>
-    </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <div class="error" id="error" role="alert" hidden></div>
 
-    {/* بخش بالایی: عنوان و شعار رسمی */}
-    <header class="z-10 text-center pt-3 px-4">
-      <div class="inline-block bg-black/65 border border-amber-500/30 px-8 py-5 rounded-2xl backdrop-blur-md shadow-2xl">
-        <h1 class="text-3xl md:text-5xl font-thuluth text-amber-200 tracking-wide title-stroke">
-          پژوهشگاه تخصصی الحجة (عج)
-        </h1>
-        <p class="text-sm md:text-base font-arad text-gray-100 mt-4 subtitle-stroke">
-          نخستین سامانه هوشمند تبیین معارف مهدوی و پاسخگویی بر پایه منابع اصیل شیعی
-        </p>
-      </div>
-          {/* باکس معرفی سامانه سراج (زیر کادر دکوراتیو) */}
-    <div class="mt-8 lg:mt-64 w-full flex justify-center px-4 md:px-0">
-      <div class="max-w-2xl p-6 md:p-8 rounded-2xl bg-amber-50/50 backdrop-blur-sm border border-amber-900/10 shadow-lg text-center">
-        <p class="text-stone-900 font-arad text-sm md:text-base leading-relaxed md:leading-loose text-justify md:text-center">
-          <span class="font-bold text-amber-950">سِراج</span>، سامانهٔ هوشمند پاسخ‌گویی به سؤالات و شبهات و دستیار تخصصی پژوهش برای علاقه‌مندان و محققان حوزهٔ معارف مهدوی است. این سامانه با بهره‌گیری از نسخه‌های پیشرفتهٔ مدل‌های زبانی هوش مصنوعیِ سفارشی‌سازی‌شده و به‌کارگیری معماری مدرن استناد و بازیابی اسناد، طوری طراحی شده است تا پاسخ‌ها را مستقیماً از دل آیات، احادیث کتب اربعه، تراث شیعی، آثار علمای امامیه و آخرین مقالات علمی داوری‌شده —به‌دور از تحریف و بدون دخل و تصرف یا خطای هوش مصنوعی— استخراج کند و بر پایهٔ منابع اصیل، متقن و مستندات دست‌اول شیعی، چراغ راهی مطمئن برای حق‌پژوهان و علاقه‌مندان به معارف مهدوی باشد.
-        </p>
-      </div>
-    </div>
+  <script is:inline define:vars={{ base }}>
+    const DATA_URL = `${base}/datasets/ne_110m_admin_0_countries.geojson`;
+    const CACHE_NAME = 'alhojat-geojson-v5';
+    const INITIAL_VIEW = { lat: 30, lng: 45, altitude: 2.2 };
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    </header>
+    const groups = {
+      ar: new Set([
+        'DZ', 'BH', 'KM', 'DJ', 'EG', 'IQ', 'JO', 'KW', 'LB', 'LY',
+        'MR', 'MA', 'OM', 'PS', 'QA', 'SA', 'SO', 'SD', 'SY', 'TN',
+        'AE', 'YE'
+      ]),
+      en: new Set(['GB', 'US', 'CA', 'AU', 'NZ', 'IE', 'ZA']),
+      fr: new Set([
+        'FR', 'CD', 'BE', 'CH', 'CI', 'CM', 'MG', 'SN', 'ML',
+        'GN', 'BF', 'NE', 'TG', 'BJ', 'GA', 'CG', 'CF', 'LU'
+      ]),
+      es: new Set([
+        'ES', 'MX', 'CO', 'AR', 'PE', 'VE', 'CL', 'EC', 'GT',
+        'CU', 'BO', 'DO', 'HN', 'PY', 'SV', 'NI', 'CR', 'PA',
+        'UY', 'GQ'
+      ]),
+      fa: new Set(['IR', 'AF', 'TJ', 'GE']),
+      az: new Set(['AZ', 'TR', 'TM']),
+      ru: new Set(['RU', 'BY', 'KZ', 'KG']),
+      ur: new Set(['PK', 'IN']),
+      he: new Set(['IL'])
+    };
 
-    {/* بخش پایینی: انتخاب زبان با ۹ پرچم */}
-    <div class="z-10 pb-8 px-4 w-full max-w-5xl mx-auto flex flex-col items-center">
-      <div class="text-center mb-3">
-        <span class="text-xs md:text-sm font-arad text-amber-300 bg-black/75 px-5 py-1.5 rounded-full border border-amber-500/40 backdrop-blur-md shadow-lg">
-          لطفاً زبان مورد نظر خود را انتخاب کنید / Please select your language
-        </span>
-      </div>
+    const languageInfo = {
+      fa: { name: 'فارسی', color: '#FFFF00', hover: '#FFFF4D',
+            view: { lat: 32, lng: 54, altitude: 1.9 } },
+      ar: { name: 'العربية', color: '#177C00', hover: '#0AA926',
+            view: { lat: 24, lng: 45, altitude: 1.9 } },
+      en: { name: 'English', color: '#b0601a', hover: '#c76f1b',
+            view: { lat: 39, lng: -98, altitude: 2.1 } },
+      fr: { name: 'Français', color: '#9d7ad2', hover: '#c4a9f3',
+            view: { lat: 46, lng: 2, altitude: 1.9 } },
+      es: { name: 'Español', color: '#FF5789', hover: '#f472b6',
+            view: { lat: 40, lng: -4, altitude: 1.9 } },
+      az: { name: 'Türkçe / Azərbaycanca', color: '#e57373', hover: '#ff8a80',
+            view: { lat: 40, lng: 49, altitude: 1.9 } },
+      ru: { name: 'Русский', color: '#34B3F1', hover: '#00CCEF',
+            view: { lat: 60, lng: 90, altitude: 2.1 } },
+      ur: { name: 'اردو', color: '#EF5B0C', hover: '#F97F33',
+            view: { lat: 30, lng: 69, altitude: 1.9 } },
+      he: { name: 'עברית', color: '#DBDBDB', hover: '#cbd5e1',
+            view: { lat: 31.5, lng: 35, altitude: 1.8 } }
+    };
 
-      {/* گرید زبان‌ها */}
-      <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2 md:gap-3 w-full justify-items-center">
-        {[
-          { code: 'fa', name: 'فارسی', flag: '🇮🇷', path: '/fa/' },
-          { code: 'ar', name: 'العربية', flag: '🇮🇶', path: '/ar/' },
-          { code: 'en', name: 'English', flag: '🇺🇸', path: '/en/' },
-          { code: 'az', name: 'Azərbaycan', flag: '🇦🇿', path: '/az/' },
-          { code: 'ur', name: 'اردو', flag: '🇵🇰', path: '/ur/' },
-          { code: 'fr', name: 'Français', flag: '🇫🇷', path: '/fr/' },
-          { code: 'es', name: 'Español', flag: '🇪🇸', path: '/es/' },
-          { code: 'ku', name: 'کوردی', flag: '☀️', path: '/ku/' },
-          { code: 'he', name: 'עברית', flag: '🇮🇱', path: '/he/' },
-        ].map((lang) => (
-          <a
-            href={lang.path}
-            class="group flex flex-col items-center justify-center p-2.5 rounded-xl bg-black/70 hover:bg-amber-500/30 border border-white/15 hover:border-amber-400 transition-all duration-300 backdrop-blur-md w-full shadow-xl hover:scale-105"
-          >
-            <span class="text-2xl md:text-3xl mb-1 group-hover:scale-110 transition-transform">{lang.flag}</span>
-            <span class="text-xs md:text-sm font-arad font-semibold text-gray-100 group-hover:text-amber-300">{lang.name}</span>
-          </a>
-        ))}
-      </div>
+    const languageOrder = ['fa', 'az', 'ru', 'he', 'ur', 'ar', 'en', 'fr', 'es'];
 
-      {/* کپی‌رایت پایین صفحه */}
-      <div class="mt-4 text-center text-[10px] font-arad text-gray-300/80 bg-black/60 px-4 py-1 rounded-full backdrop-blur-sm">
-        کلیه حقوق محفوظ است - الحجة © 2026
-      </div>
-    </div>
+    const sidebar = document.getElementById('languageSidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const languageList = document.getElementById('languageList');
+    const items = [...document.querySelectorAll('.lang-item')];
+    const loading = document.getElementById('loading');
+    const errorBox = document.getElementById('error');
+    const toast = document.getElementById('toast');
 
-  </main>
-</Layout>
+    let world = null;
+    let hoveredPolygon = null;
+    let selectedPolygon = null;
+    let activeLanguage = null;
+    let toastTimer = null;
+    let readyTimer = null;
+
+    const isTouchMode = () =>
+      window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
+    function countryLanguage(country) {
+      const code = country?.properties?.ISO_A2;
+      const name = country?.properties?.ADMIN;
+      if (code === 'FR' || name === 'France') return 'fr';
+      return languageOrder.find(lang => groups[lang].has(code)) || null;
+    }
+
+    function baseColor(country) {
+      const lang = countryLanguage(country);
+      return lang ? languageInfo[lang].color : '#ffffff';
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toast.hidden = true; }, 4200);
+    }
+
+    function showError(message) {
+      loading.hidden = true;
+      errorBox.textContent = message;
+      errorBox.hidden = false;
+    }
+
+    function refreshHighlights() {
+      if (!world) return;
+
+      world
+        .polygonAltitude(country =>
+          country === hoveredPolygon ||
+          (activeLanguage && countryLanguage(country) === activeLanguage)
+            ? 0.12 : 0.06
+        )
+        .polygonCapColor(country => {
+          const lang = countryLanguage(country);
+          const highlighted = country === hoveredPolygon ||
+            (activeLanguage && lang === activeLanguage);
+
+          if (highlighted) {
+            return lang ? languageInfo[lang].hover : '#e2e8f0';
+          }
+          return baseColor(country);
+        });
+
+      items.forEach(item => {
+        item.classList.toggle(
+          'is-active',
+          item.dataset.lang === activeLanguage ||
+          (!activeLanguage &&
+            hoveredPolygon &&
+            item.dataset.lang === countryLanguage(hoveredPolygon))
+        );
+      });
+    }
+
+    function setActiveLanguage(lang) {
+      if (activeLanguage === lang) return;
+      activeLanguage = lang;
+      refreshHighlights();
+    }
+
+    function focusLanguage(lang) {
+      const info = languageInfo[lang];
+      if (!info || !world) return;
+
+      world.controls().autoRotate = false;
+      setActiveLanguage(lang);
+      world.pointOfView(info.view, reducedMotion.matches ? 0 : 1000);
+    }
+
+    function resetView() {
+      if (!world) return;
+
+      selectedPolygon = null;
+      hoveredPolygon = null;
+      setActiveLanguage(null);
+      refreshHighlights();
+      toast.hidden = true;
+
+      world.pointOfView(
+        INITIAL_VIEW,
+        reducedMotion.matches ? 0 : 1100
+      );
+      world.controls().autoRotate = !reducedMotion.matches;
+    }
+
+    function suggestBrowserLanguage() {
+      const browserLanguages = navigator.languages?.length
+        ? navigator.languages
+        : [navigator.language];
+
+      const first = browserLanguages[0]?.toLowerCase().split('-')[0];
+      const suggestionCode = first === 'tr' ? 'az' : first;
+      const info = languageInfo[suggestionCode];
+      const item = items.find(link => link.dataset.lang === suggestionCode);
+
+      if (!info || !item) return;
+
+      item.classList.add('is-suggested');
+      document.getElementById('suggestionText').textContent =
+        `زبان مرورگر شما «${info.name}» است. مایلید این نسخه را باز کنید؟`;
+
+      document.getElementById('suggestionLink').href = item.href;
+      document.getElementById('suggestion').hidden = false;
+    }
+
+    async function loadGeoJSON() {
+      let cache = null;
+
+      if ('caches' in window) {
+        try {
+          cache = await caches.open(CACHE_NAME);
+          const stored = await cache.match(DATA_URL);
+
+          if (stored) {
+            fetch(DATA_URL)
+              .then(response => {
+                if (response.ok) return cache.put(DATA_URL, response.clone());
+              })
+              .catch(() => {});
+
+            return stored.json();
+          }
+        } catch (cacheError) {
+          console.warn('GeoJSON cache unavailable:', cacheError);
+          cache = null;
+        }
+      }
+
+      const response = await fetch(DATA_URL);
+      if (!response.ok) {
+        throw new Error(`GeoJSON HTTP ${response.status}`);
+      }
+
+      if (cache) {
+        cache.put(DATA_URL, response.clone())
+          .catch(cacheError => console.warn('GeoJSON cache write failed:', cacheError));
+      }
+
+      return response.json();
+    }
+
+    function tooltip(country) {
+      const name = escapeHTML(country.properties?.ADMIN || 'Unknown');
+      const lang = countryLanguage(country);
+
+      if (!lang) return `<b>${name}</b>`;
+
+      const info = languageInfo[lang];
+      const direction = ['fa', 'ar', 'ur', 'he'].includes(lang) ? 'rtl' : 'auto';
+
+      return `
+        <div style="padding:8px 12px;color:white;background:rgba(15,17,23,.96);
+                    border:1px solid ${info.hover};border-radius:7px;
+                    font-family:Tahoma,Arial,sans-serif;line-height:1.8">
+          <div>Country: <b>${name}</b></div>
+          <div>Language: <b dir="${direction}">${info.name}</b></div>
+          <div style="color:${info.hover}">
+            ${isTouchMode() ? 'برای ورود، دوبار روی کشور بزنید' : 'Click to enter'}
+          </div>
+        </div>
+      `;
+    }
+
+    function handleCountryClick(country, coordinates) {
+      const lang = countryLanguage(country);
+
+      if (!lang) {
+        selectedPolygon = null;
+        setActiveLanguage(null);
+        showToast('این کشور در گروه‌های فعلی نیست؛ زبان را از منو انتخاب کنید.');
+        return;
+      }
+
+      const item = items.find(link => link.dataset.lang === lang);
+      if (!item) return;
+
+      if (!isTouchMode()) {
+        window.location.href = item.href;
+        return;
+      }
+
+      if (selectedPolygon === country) {
+        window.location.href = item.href;
+        return;
+      }
+
+      selectedPolygon = country;
+      setActiveLanguage(lang);
+      world.controls().autoRotate = false;
+
+      world.pointOfView({
+        lat: coordinates?.lat ?? languageInfo[lang].view.lat,
+        lng: coordinates?.lng ?? languageInfo[lang].view.lng,
+        altitude: 1.9
+      }, reducedMotion.matches ? 0 : 850);
+
+      showToast(
+        `${country.properties?.ADMIN || 'کشور'} انتخاب شد؛ برای ورود به نسخهٔ ${languageInfo[lang].name} دوباره روی همین کشور بزنید.`
+      );
+    }
+
+    items.forEach(item => {
+      const lang = item.dataset.lang;
+
+      item.addEventListener('mouseenter', () => {
+        if (!isTouchMode()) focusLanguage(lang);
+      });
+
+      item.addEventListener('focus', () => {
+        if (!isTouchMode()) focusLanguage(lang);
+      });
+    });
+
+    sidebar.addEventListener('mouseleave', () => {
+      if (!isTouchMode()) setActiveLanguage(null);
+    });
+
+    sidebar.addEventListener('focusout', event => {
+      if (!sidebar.contains(event.relatedTarget) && !isTouchMode()) {
+        setActiveLanguage(null);
+      }
+    });
+
+    menuToggle.addEventListener('click', () => {
+      const open = sidebar.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', String(open));
+      menuToggle.textContent = open
+        ? '✕ بستن فهرست زبان‌ها'
+        : '☰ انتخاب زبان‌ها';
+    });
+
+    const mobileScreen = window.matchMedia('(max-width: 700px)');
+
+    function syncMenuAccessibility() {
+      languageList.inert = mobileScreen.matches && !sidebar.classList.contains('open');
+    }
+
+    menuToggle.addEventListener('click', syncMenuAccessibility);
+    mobileScreen.addEventListener('change', syncMenuAccessibility);
+    syncMenuAccessibility();
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.textContent = '☰ انتخاب زبان‌ها';
+        syncMenuAccessibility();
+        menuToggle.focus();
+      }
+    });
+
+    document.getElementById('resetView').addEventListener('click', resetView);
+    document.getElementById('dismissSuggestion').addEventListener('click', () => {
+      document.getElementById('suggestion').hidden = true;
+    });
+
+    suggestBrowserLanguage();
+
+    async function initGlobe() {
+      try {
+        if (typeof Globe !== 'function') {
+          throw new Error('کتابخانهٔ Globe.gl بارگذاری نشد.');
+        }
+
+        const geojson = await loadGeoJSON();
+
+        if (!Array.isArray(geojson.features)) {
+          throw new Error('ساختار GeoJSON معتبر نیست.');
+        }
+
+        const features = geojson.features.filter(
+          country => country.properties?.ISO_A2 !== 'AQ'
+        );
+
+        readyTimer = setTimeout(() => {
+          if (!loading.hidden) {
+            showError('بارگذاری کره طول کشید؛ اتصال و فایل‌های محلی (globe.min.js و تصاویر) را بررسی کنید.');
+          }
+        }, 20000);
+
+        world = Globe()(document.getElementById('globeViz'))
+          .onGlobeReady(() => {
+            clearTimeout(readyTimer);
+            loading.hidden = true;
+            errorBox.hidden = true;
+          })
+          .globeImageUrl(
+            `${base}/images/earth-night.jpg`
+          )
+          .backgroundImageUrl(
+            `${base}/images/night-sky.png`
+          )
+          .atmosphereColor('#38bdf8')
+          .atmosphereAltitude(0.15)
+          .lineHoverPrecision(0)
+          .polygonsData(features)
+          .polygonAltitude(0.06)
+          .polygonCapColor(baseColor)
+          .polygonSideColor(() => 'rgba(30,30,35,.4)')
+          .polygonStrokeColor(() => '#333333')
+          .polygonLabel(tooltip)
+          .polygonsTransitionDuration(300)
+          .onPolygonHover(country => {
+            if (hoveredPolygon === country) return;
+            hoveredPolygon = country;
+            refreshHighlights();
+          })
+          .onPolygonClick((country, event, coordinates) => {
+            handleCountryClick(country, coordinates);
+          })
+          .showPointerCursor(({ type, data }) =>
+            type === 'polygon' && Boolean(data && countryLanguage(data))
+          );
+
+        world.pointOfView(INITIAL_VIEW);
+        world.controls().autoRotate = !reducedMotion.matches;
+        world.controls().autoRotateSpeed = 0.5;
+
+        world.controls().addEventListener('start', () => {
+          world.controls().autoRotate = false;
+        });
+
+        window.addEventListener('resize', () => {
+          world.width(window.innerWidth).height(window.innerHeight);
+        });
+
+      } catch (loadError) {
+        clearTimeout(readyTimer);
+        console.error(loadError);
+        showError(
+          'نقشه بارگذاری نشد؛ مسیر GeoJSON، اتصال اینترنت و کنسول مرورگر را بررسی کنید.'
+        );
+      }
+    }
+
+    initGlobe();
+  </script>
+</body>
+</html>
