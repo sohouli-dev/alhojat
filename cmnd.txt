@@ -3,7 +3,7 @@
 git pull
 می‌خواهی بروند روی گیت‌هاب:
 git add .
-git commit -m "update project files"
+git commit -m "update splash page"
 git push 
 
 راست‌کلیک توی پوشه alhojat و زدن Open Git Bash here

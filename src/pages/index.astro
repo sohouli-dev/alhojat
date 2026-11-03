@@ -352,7 +352,7 @@ const href = (l: string) => `${base}/${l}/`;
         <span class="color-dot"></span><span>Español</span>
       </a>
       <a class="lang-item" data-lang="az" href={href('az')} style="--dot:#e57373">
-        <span class="color-dot"></span><span>Türkçe / Azərbaycanca</span>
+        <span class="color-dot"></span><span>Türkcə</span>
       </a>
       <a class="lang-item" data-lang="ru" href={href('ru')} style="--dot:#34B3F1">
         <span class="color-dot"></span><span>Русский</span>
@@ -360,7 +360,7 @@ const href = (l: string) => `${base}/${l}/`;
       <a class="lang-item" data-lang="ur" href={href('ur')} style="--dot:#EF5B0C">
         <span class="color-dot"></span><span dir="rtl">اردو</span>
       </a>
-      <a class="lang-item" data-lang="he" href={href('he')} style="--dot:#DBDBDB">
+      <a class="lang-item" data-lang="he" href={href('he')} style="--dot:#585858">
         <span class="color-dot"></span><span dir="rtl">עברית</span>
       </a>
     </nav>
@@ -429,13 +429,13 @@ const href = (l: string) => `${base}/${l}/`;
             view: { lat: 46, lng: 2, altitude: 1.9 } },
       es: { name: 'Español', color: '#FF5789', hover: '#f472b6',
             view: { lat: 40, lng: -4, altitude: 1.9 } },
-      az: { name: 'Türkçe / Azərbaycanca', color: '#e57373', hover: '#ff8a80',
+      az: { name: 'Türkcə', color: '#e57373', hover: '#ff8a80',
             view: { lat: 40, lng: 49, altitude: 1.9 } },
       ru: { name: 'Русский', color: '#34B3F1', hover: '#00CCEF',
             view: { lat: 60, lng: 90, altitude: 2.1 } },
       ur: { name: 'اردو', color: '#EF5B0C', hover: '#F97F33',
             view: { lat: 30, lng: 69, altitude: 1.9 } },
-      he: { name: 'עברית', color: '#DBDBDB', hover: '#cbd5e1',
+      he: { name: 'עברית', color: '#404040', hover: '#696969',
             view: { lat: 31.5, lng: 35, altitude: 1.8 } }
     };
 
@@ -567,7 +567,7 @@ const href = (l: string) => `${base}/${l}/`;
 
       item.classList.add('is-suggested');
       document.getElementById('suggestionText').textContent =
-        `زبان مرورگر شما «${info.name}» است. مایلید این نسخه را باز کنید؟`;
+        `است مایلید این نسخه را باز کنید؟ «${info.name}» زبان مروزگر شما`;
 
       document.getElementById('suggestionLink').href = item.href;
       document.getElementById('suggestion').hidden = false;
@@ -609,27 +609,63 @@ const href = (l: string) => `${base}/${l}/`;
       return response.json();
     }
 
-    function tooltip(country) {
-      const name = escapeHTML(country.properties?.ADMIN || 'Unknown');
+         function tooltip(country) {
+      let name = escapeHTML(country.properties?.ADMIN || 'Unknown');
       const lang = countryLanguage(country);
 
       if (!lang) return `<b>${name}</b>`;
 
       const info = languageInfo[lang];
       const direction = ['fa', 'ar', 'ur', 'he'].includes(lang) ? 'rtl' : 'auto';
+      
+      // استخراج کد ایزو و تبدیل به حروف کوچک
+      const rawIso = country.properties?.ISO_A2 || country.properties?.iso_a2 || country.id || '';
+      let isoCode = typeof rawIso === 'string' ? rawIso.toLowerCase().trim() : '';
+      
+      // اصلاح دستی برای کشورهایی که کد ISO آن‌ها در نقشه متفاوت است (مثل فرانسه)
+      if (name.toLowerCase() === 'france' || isoCode === 'fra') {
+        isoCode = 'fr';
+      }
+
+      // جایگزینی نام و پرچم با استفاده از فایل op.svg در پوشه flags
+      if (isoCode === 'il' || name.toLowerCase().includes('israel')) {
+        name = 'Occupied Palestine';
+        isoCode = 'op'; // استفاده از فایل op.svg که خودت کپی کردی
+      }
+
+      const flagPath = `${base}/flags/${isoCode}.svg`;
+      const flagHtml = isoCode ? `<img src="${flagPath}" alt="${isoCode}" style="width: 40px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(0,0,0,0.55); vertical-align: middle; margin-left: 8px; box-shadow: 3px 3px 8px rgba(0,0,0,0.5);" onerror="this.style.display='none'" />` : '';
 
       return `
-        <div style="padding:8px 12px;color:white;background:rgba(15,17,23,.96);
-                    border:1px solid ${info.hover};border-radius:7px;
-                    font-family:Tahoma,Arial,sans-serif;line-height:1.8">
-          <div>Country: <b>${name}</b></div>
-          <div>Language: <b dir="${direction}">${info.name}</b></div>
-          <div style="color:${info.hover}">
-            ${isTouchMode() ? 'برای ورود، دوبار روی کشور بزنید' : 'Click to enter'}
+        <div style="
+          padding: 12px 15px;
+          color: #f8fafc;
+          background: rgba(15, 17, 23, 0.78);
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+          border: 1.5px solid ${info.hover};
+          border-radius: 12px;
+          box-shadow: 0 0 18px ${info.hover}44, 0 10px 30px rgba(0, 0, 0, 0.6);
+          font-family: Tahoma, Arial, sans-serif;
+          line-height: 1.8;
+          min-width: 160px;
+          text-align: center;
+          direction: rtl;
+        ">
+          <div style="font-size: 13px; color: #cbd5e1; display: flex; align-items: center; justify-content: center;">
+            ${flagHtml} <b style="color: #fff; margin-right: 4px;">${name}</b>
+          </div>
+          <div style="font-size: 12px; color: #cbd5e1; margin-top: 5px;">
+            زبان: <b dir="${direction}" style="color: ${info.hover};">${info.name}</b>
+          </div>
+          <div style="margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; color: ${info.hover}; font-weight: bold; text-align: center;">
+            ${isTouchMode() ? 'برای ورود، دوبار بزنید' : 'Click to enter'}
           </div>
         </div>
       `;
     }
+
+
 
     function handleCountryClick(country, coordinates) {
       const lang = countryLanguage(country);
