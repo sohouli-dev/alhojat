@@ -1,5 +1,5 @@
 ---
-// src/pages/splash.astro — صفحه انتخاب زبان (standalone، بدون Layout)
+// src/pages/index.astro — صفحه انتخاب زبان (standalone، بدون Layout)
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const href = (l: string) => `${base}/${l}/`;
 ---
@@ -634,7 +634,7 @@ const href = (l: string) => `${base}/${l}/`;
       }
 
       const flagPath = `${base}/flags/${isoCode}.svg`;
-      const flagHtml = isoCode ? `<img src="${flagPath}" alt="${isoCode}" style="width: 40px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(0,0,0,0.55); vertical-align: middle; margin-left: 8px; box-shadow: 3px 3px 8px rgba(0,0,0,0.5);" onerror="this.style.display='none'" />` : '';
+      const flagHtml = isoCode ? `<img src="${flagPath}" alt="${isoCode}" style="width: 40px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(0,0,0,0.35); vertical-align: middle; margin-left: 8px; box-shadow: 3px 3px 8px rgba(0,0,0,0.5);" onerror="this.style.display='none'" />` : '';
 
       return `
         <div style="
